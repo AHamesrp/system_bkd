@@ -5,6 +5,11 @@ pip install -r requirements.txt
 cp .env.example .env
 uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
 
+## Rodar /tests
+
+1° este -> python -m pytest tests/test_s3_smoke.py tests/test_rekognition_smoke.py -q
+2° este -> python -m pytest tests/test_s3_smoke.py tests/test_rekognition_smoke.py -vv -s
+
 ## Docker
 
 docker build -t face-event-backend:latest .
