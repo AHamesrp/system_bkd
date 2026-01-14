@@ -1,0 +1,68 @@
+version: "3.9"
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  # ===== TRAEFIK (Reverse Proxy e Gerenciador ACME/Certificados) =====
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      # Expõe portas HTTP e HTTPS para o mundo
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Armazenamento persistente para o certificado Let's Encrypt
+      - ./letsencrypt:/letsencrypt
+      # Permite ao Traefik ler as labels dos outros containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+    command:
+      # Ativa o Docker como provedor e configura a rede
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=app-network
+
+      # Define Entrypoints (Portas de entrada)
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+
+      # Configuração do Let's Encrypt (ACME)
+      - --certificatesresolvers.myresolver.acme.email=matheusmbarros01@gmail.com # SEU EMAIL
+      - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      # Método de validação: Desafio HTTP na porta 80
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+
+      # Redirecionamento Global HTTP -> HTTPS (Melhora a segurança e SEO)
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      
+      # Opcional: Ativa o dashboard do Traefik (Acesse via outro router ou localhost)
+      # - --api.dashboard=true
+
+  # ===== BACKEND (SUA API NODE.JS) =====
+  backend:
+    build: .
+    container_name: moments-backend
+    env_file:
+      - .env
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      # Roteia requisições do domínio da API para este container
+      - "traefik.http.routers.backend.rule=Host(`api.moments-floripasquare.com.br`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      # Configura o SSL/TLS e usa o resolvedor do Let's Encrypt
+      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
+      # Direciona o tráfego que chega no Traefik (443) para a porta 8080 do backend
+      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+    expose:
+      - "8080" # Porta interna do container
+

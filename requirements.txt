@@ -1,0 +1,38 @@
+# --- Core API ---
+fastapi==0.114.2
+uvicorn[standard]==0.30.6
+
+# --- AWS SDK ---
+boto3==1.34.162
+botocore==1.34.162
+
+# --- Uploads / Parsing ---
+python-multipart==0.0.9
+aiofiles==23.2.1
+orjson==3.10.7
+
+# --- Data validation ---
+pydantic==2.8.2
+pydantic[email]==2.8.2
+
+# --- Database ---
+sqlalchemy[asyncio]==2.0.35
+asyncpg==0.29.0     # driver assíncrono para PostgreSQL
+alembic==1.13.2     # migrations (opcional mas recomendado)
+aiosqlite==0.20.0
+psycopg2-binary
+
+# --- Security / Auth ---
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# --- Environment ---
+python-dotenv==1.0.1
+
+requests==2.32.0
+
+httpx
+
+prometheus_client
+

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+
+# Ambiente Virtual
+backend/.venv/*
+backend/venv/*
+env/
+/bin/
+
+# IDEs
+.vscode/
+.idea/
+
+# Bancos de dados e dados locais
+*.db
+*.sqlite3
+/data/
+
+# Logs e arquivos de execução
+*.log
+*.sqlite
+.DS_Store # macOS
+.vscode-server/
+.history/
