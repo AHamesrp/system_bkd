@@ -36,3 +36,7 @@ httpx
 
 prometheus_client
 
+# Dev / Test
+pytest
+moto
+

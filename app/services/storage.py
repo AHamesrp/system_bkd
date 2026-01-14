@@ -1,7 +1,7 @@
 ﻿"""
-storage.py - Wrapper para Storage (Azure Blob / AWS S3)
+storage.py - Wrapper para Storage (AWS S3)
 
-Roteia automaticamente entre Azure e AWS baseado em settings.STORAGE_PROVIDER.
+Roteia para AWS S3 baseado em settings.STORAGE_PROVIDER (aws).
 Usa lazy import para evitar falhas se o provider nao estiver configurado.
 """
 
@@ -10,14 +10,11 @@ from app.settings import settings
 
 def _get_impl():
     """Lazy import do modulo correto baseado no provider."""
-    provider = getattr(settings, "STORAGE_PROVIDER", "azure")
-    if provider == "azure":
-        from app.services import azure_blob as impl
-        return impl
+    provider = getattr(settings, "STORAGE_PROVIDER", "aws")
     if provider == "aws":
         from app.services import s3 as impl
         return impl
-    raise RuntimeError(f"STORAGE_PROVIDER invalido: {provider!r}. Use 'azure' ou 'aws'.")
+    raise RuntimeError(f"STORAGE_PROVIDER invalido: {provider!r}. Use 'aws'.")
 
 
 def get_bucket_raw() -> str:
@@ -31,14 +28,8 @@ def put_bytes(bucket: str, key: str, data: bytes, content_type: str = "applicati
 
 
 def get_bytes(bucket: str, key: str) -> bytes:
-    """Download de bytes do storage."""
+    """Download de bytes do storage (AWS S3)."""
     impl = _get_impl()
-    provider = getattr(settings, "STORAGE_PROVIDER", "azure")
-
-    if provider == "azure":
-        return impl.get_blob_bytes(bucket, key)
-
-    # AWS fallback
     obj = impl.s3.get_object(Bucket=bucket, Key=key)
     return obj["Body"].read()
 

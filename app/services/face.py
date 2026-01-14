@@ -1,7 +1,7 @@
 ﻿"""
-face.py - Wrapper para Face Recognition (Azure Face / AWS Rekognition)
+face.py - Wrapper para Face Recognition (AWS Rekognition)
 
-Roteia automaticamente entre Azure e AWS baseado em settings.FACE_PROVIDER.
+Roteia para AWS Rekognition baseado em settings.FACE_PROVIDER (aws).
 Usa lazy import para evitar falhas se o provider nao estiver configurado.
 """
 
@@ -10,14 +10,11 @@ from app.settings import settings
 
 def _get_impl():
     """Lazy import do modulo correto baseado no provider."""
-    provider = getattr(settings, "FACE_PROVIDER", "azure")
-    if provider == "azure":
-        from app.services import azure_face as impl
-        return impl
+    provider = getattr(settings, "FACE_PROVIDER", "aws")
     if provider == "aws":
         from app.services import rekognition as impl
         return impl
-    raise RuntimeError(f"FACE_PROVIDER invalido: {provider!r}. Use 'azure' ou 'aws'.")
+    raise RuntimeError(f"FACE_PROVIDER invalido: {provider!r}. Use 'aws'.")
 
 
 def ensure_collection(event_slug: str) -> str:
